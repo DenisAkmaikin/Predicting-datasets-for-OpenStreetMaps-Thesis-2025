@@ -1,0 +1,7 @@
+/data/
+/models/
+/output/
+*.pb  *.pbf  *.jsonl  *.tsv  *.nt.gz
+# python & misc
+__pycache__/  *.pyc  .venv/  .env/
+.DS_Store
