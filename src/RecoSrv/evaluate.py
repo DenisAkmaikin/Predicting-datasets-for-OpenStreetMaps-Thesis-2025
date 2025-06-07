@@ -163,3 +163,6 @@ if args.slices:
             w.writeheader(); w.writerows(rows)
         print(f"  ↳ {sl}: {len(rows)} rows → {p.name}")
 
+
+#error finding + counting
+
