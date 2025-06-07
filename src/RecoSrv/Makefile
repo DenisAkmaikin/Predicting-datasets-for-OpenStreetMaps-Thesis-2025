@@ -85,5 +85,5 @@ $(EVAL_SMALL): $(EVAL_BIG) pipeline/filter_eval.py
 	python pipeline/filter_eval.py $< $@ -n 300
 
 evaluate-small: $(EVAL_SMALL)
-        $(MAKE) -C src/RecoSrv evaluate EVALFILE=../../$(EVAL_SMALL)
+	$(MAKE) -C src/RecoSrv evaluate EVALFILE=../../$(EVAL_SMALL)
 
