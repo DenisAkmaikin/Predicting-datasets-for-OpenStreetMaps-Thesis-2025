@@ -1,58 +1,38 @@
 #!/usr/bin/env python3
-from __future__ import annotations 
-"""
-Randomly down-sample a tab-separated evaluation file.
+from __future__ import annotations         # must be FIRST
 
-Example:
-    python pipeline/filter_eval.py  pipeline/data/eval_2col.tsv \
-                                    pipeline/data/eval_min.tsv \
-                                    -n 300 --seed 123
 """
+Down-sample an evaluation TSV file to *n* lines.
 
+Example
+-------
+python pipeline/filter_eval.py  pipeline/data/eval_2col.tsv \
+                                pipeline/data/eval_min.tsv   \
+                                -n 300 --seed 123
+"""
 import argparse, pathlib, random, sys
 
-parser = argparse.ArgumentParser()
-parser.add_argument("infile",  help="Original 2-column TSV")
-parser.add_argument("outfile", help="Path for the smaller sample")
-parser.add_argument("-n", "--num",  type=int, default=200,
-                    help="Number of lines to sample (default: 200)")
-parser.add_argument("--seed", type=int, default=42,
-                    help="Random seed for reproducibility")
-args = parser.parse_args()
+def read_lines(path: pathlib.Path) -> list[str]:
+    with path.open(encoding="utf-8") as f:
+        return [ln.rstrip("\n") for ln in f if ln.strip()]
 
-in_path  = pathlib.Path(args.infile)
-out_path = pathlib.Path(args.outfile)
-#!/usr/bin/env python3
-"""
-Randomly down-sample a tab-separated evaluation file.
+def main(inp: str, out: str, n: int, seed: int):
+    rnd = random.Random(seed)
+    lines = read_lines(pathlib.Path(inp))
+    if n > len(lines):
+        sys.exit(f"Requested {n} > available {len(lines)} lines")
+    sample = rnd.sample(lines, n)
 
-Example:
-    python pipeline/filter_eval.py  pipeline/data/eval_2col.tsv \
-                                    pipeline/data/eval_min.tsv \
-                                    -n 300 --seed 123
-"""
+    pathlib.Path(out).parent.mkdir(parents=True, exist_ok=True)
+    with open(out, "w", encoding="utf-8") as f:
+        f.write("\n".join(sample) + "\n")
+    print(f"✓ wrote {out}  ({n} rows)")
 
-from __future__ import annotations
-import argparse, pathlib, random, sys
-
-parser = argparse.ArgumentParser()
-parser.add_argument("infile",  help="Original 2-column TSV")
-parser.add_argument("outfile", help="Path for the smaller sample")
-parser.add_argument("-n", "--num",  type=int, default=200,
-                    help="Number of lines to sample (default: 200)")
-parser.add_argument("--seed", type=int, default=42,
-                    help="Random seed for reproducibility")
-args = parser.parse_args()
-
-in_path  = pathlib.Path(args.infile)
-out_path = pathlib.Path(args.outfile)
-
-if not in_path.exists():
-    sys.exit(f"✗ input file not found: {in_path}")
-
-lines = in_path.read_text().splitlines()
-random.seed(args.seed)
-sample = random.sample(lines, min(args.num, len(lines)))
-
-out_path.write_text("\n".join(sample) + "\n")
-print(f"✓ wrote {len(sample)} lines → {out_path}")
+if __name__ == "__main__":
+    p = argparse.ArgumentParser()
+    p.add_argument("inp")
+    p.add_argument("out")
+    p.add_argument("-n", "--n", type=int, default=300)
+    p.add_argument("--seed", type=int, default=42)
+    args = p.parse_args()
+    main(args.inp, args.out, args.n, args.seed)
