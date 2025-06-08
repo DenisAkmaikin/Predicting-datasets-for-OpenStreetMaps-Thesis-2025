@@ -80,10 +80,15 @@ build-hierarchy: $(HIERARCHY)
 # ----------------------------------------------------------------
 EVAL_BIG   := pipeline/data/eval_2col.tsv
 EVAL_SMALL := pipeline/data/eval_min.tsv
+OUT_SMALL  := results/metrics_small.csv
 
 $(EVAL_SMALL): $(EVAL_BIG) pipeline/filter_eval.py
-	python pipeline/filter_eval.py $< $@ -n 300
+⇒	python pipeline/filter_eval.py $< $@ -n 300
 
-evaluate-small: $(EVAL_SMALL)
-	$(MAKE) -C src/RecoSrv evaluate EVALFILE=../../$(EVAL_SMALL)
+evaluate-small: $(EVAL_SMALL)      # env must already be active!
+⇒	python evaluate.py \
+⇒	       --evalfile $(EVAL_SMALL) \
+⇒	       --outfile $(OUT_SMALL)  \
+⇒	       --topk 3
+⇒	@echo "results → $(OUT_SMALL)"
 
