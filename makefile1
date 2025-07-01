@@ -1,0 +1,51 @@
+# ================================
+# Minimal Makefile for OSM Thesis
+# ================================
+.PHONY: env build-graph build-hierarchy eval-flat eval-hier sweep clean
+
+# --------- 1. ENVIRONMENT SETUP ----------
+env:
+	conda env create -f environment.yml --name new_env || true
+
+# --------- 2. GRAPH BUILD ----------
+build-graph:
+	python pipeline/build_graph_sqlite.py \
+		--tags assets/osm_tags.json.gz \
+		--edges assets/graphs/osm_edges.json \
+		--min_count 5
+
+# --------- 3. BUILD HIERARCHY ----------
+GAMMA ?= 1.0
+build-hierarchy:
+	python pipeline/build_hierarchy.py \
+		--edges assets/graphs/osm_edges.json \
+		--tree assets/hierarchies/osm_louvain_gamma$(GAMMA).json \
+		--gamma $(GAMMA)
+
+# --------- 4. EVALUATION ----------
+eval-flat:
+	python evaluate.py --evalfile pipeline/data/eval_balanced.tsv \
+	                   --outfile results/flat_balanced_map10.csv \
+	                   --metric map --topk 10 \
+	                   --server http://localhost:8081/recommender
+
+eval-hier:
+	python evaluate.py --evalfile pipeline/data/eval_balanced.tsv \
+	                   --outfile results/hier_balanced_map10.csv \
+	                   --metric map --topk 10 \
+	                   --server http://localhost:8080/recommender
+
+# --------- 5. γ SWEEP ----------
+sweep:
+	@for G in 0.5 1.0 1.4 2.0; do \
+		ln -sf assets/hierarchies/osm_louvain_gamma$$G.json assets/hierarchies/osm_louvain.json; \
+		echo "✓ Switched to gamma=$$G"; \
+		python evaluate.py --evalfile pipeline/data/eval_balanced.tsv \
+		                   --outfile results/hier_balanced_map10_g$$G.csv \
+		                   --metric map --topk 10 \
+		                   --server http://localhost:8080/recommender; \
+	done
+
+# --------- 6. CLEANUP ----------
+clean:
+	rm -f results/*.csv assets/graphs/*.json assets/hierarchies/*.json

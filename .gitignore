@@ -1,0 +1,45 @@
+# OS / editor clutter
+.DS_Store
+.vscode/
+__pycache__/
+*.pyc
+*.swp
+*.bak
+*.tmp
+
+# Logs
+/tmp/reco_*.log
+
+# Conda environments (just in case)
+env/
+reco-thesis/
+*.conda
+*.lock
+
+# OSM + Preprocessed Data
+*.pbf
+*.pb
+*.bin
+*.db
+*.tsv
+*.json
+*.jsonl
+*.json.gz
+*.nt.gz
+*.typed.*
+
+# Project-specific large files
+assets/osm_tags.json.gz
+assets/graphs/osm_edges*.json
+assets/graphs/*_ff.json
+pipeline/data/eval_*.tsv
+pipeline/data/north-holland-latest.osm.pbf
+pipeline/data/*.pbf
+edgecount.db
+
+# Evaluation results
+results/
+
+# Server binary
+RecoSrv
+
