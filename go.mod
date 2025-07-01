@@ -12,7 +12,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	gitlab.com/tozd/go/errors v0.10.0
 	gitlab.com/tozd/go/mediawiki v0.16.0
-	google.golang.org/protobuf v1.36.2
+	google.golang.org/protobuf v1.36.6
 )
 
 require (
